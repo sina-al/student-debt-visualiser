@@ -22,14 +22,14 @@ class Debt {
 
     void accumulateInterest(double interestRate){
         if(interestRate < 0){
-            throw new IllegalArgumentException("Negative interest not permitted.");
+            throw new UnsupportedOperationException("Cannot accumulate negative interest.");
         }
         debt *= (1.0 + interestRate);
     }
 
     void makeRepayment(double repayment){
         if (repayment < 0){
-            throw new IllegalArgumentException("Can't make negative repayment.");
+            throw new IllegalArgumentException("Cannot make negative repayment.");
         }
         if (debt > repayment){
             debt -= repayment;

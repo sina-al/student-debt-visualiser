@@ -45,7 +45,7 @@ public class DebtTest {
         assertEquals("Interest accumulated:", expected, actual, 0);
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test (expected = UnsupportedOperationException.class)
     public void accumulateInterest_negative() throws Exception {
         debt.accumulateInterest(-0.03);
     }
