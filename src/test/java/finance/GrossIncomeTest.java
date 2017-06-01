@@ -59,5 +59,6 @@ public class GrossIncomeTest {
         assertEquals(expected, actual);
     }
 
+    // TODO: 01/06/2017 add test cases for double[] getGrossIncome()
 
 }

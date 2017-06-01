@@ -52,21 +52,21 @@ public class TaxedIncomeTest {
     @Test
     public void getTaxPaidInYear0() throws Exception {
         double expected = 0;
-        double actual = taxedIncome.getTaxPaidInYear(0);
+        double actual = taxedIncome.getTaxPaid(0);
         assertEquals("Tax paid below personal allowance:",expected, actual, 0);
     }
 
     @Test
     public void getTaxedIncomeInYear0() throws Exception {
         double expected = zeroTaxIncomeYear0;
-        double actual = taxedIncome.getTaxedIncomeInYear(0);
+        double actual = taxedIncome.getTaxedIncome(0);
         assertEquals("Taxed income below personal allowance:", expected, actual, 0);
     }
 
     @Test
     public void getTaxPaidInYear1() throws Exception {
         double expected = (LOWER_TAX_THRESHOLD - lowerTaxIncomeYear1) * LOWER_TAX_RATE;
-        double actual = taxedIncome.getTaxPaidInYear(1);
+        double actual = taxedIncome.getTaxPaid(1);
         assertEquals("Taxed paid in lower tax bracket:", expected, actual, 0);
     }
 
@@ -74,7 +74,7 @@ public class TaxedIncomeTest {
     public void getTaxedIncomeInYear1() throws Exception {
         double expected = ZERO_TAX_THRESHOLD
                 + ((LOWER_TAX_THRESHOLD - lowerTaxIncomeYear1) * (1 - LOWER_TAX_RATE));
-        double actual = taxedIncome.getTaxedIncomeInYear(1);
+        double actual = taxedIncome.getTaxedIncome(1);
         assertEquals("Taxed income in lower tax bracket:", expected, actual, 0);
     }
 
@@ -82,7 +82,7 @@ public class TaxedIncomeTest {
     public void getTaxPaidInYear2() throws Exception {
         double expected = ((LOWER_TAX_THRESHOLD - ZERO_TAX_THRESHOLD) * LOWER_TAX_RATE)
                 + ((higherTaxIncomeYear2 - LOWER_TAX_THRESHOLD) * HIGHER_TAX_RATE);
-        double actual = taxedIncome.getTaxPaidInYear(2);
+        double actual = taxedIncome.getTaxPaid(2);
         assertEquals("Tax paid in higher tax bracket:", expected, actual, 0);
     }
 
@@ -91,7 +91,7 @@ public class TaxedIncomeTest {
         double expected = ZERO_TAX_THRESHOLD
                 + ((LOWER_TAX_THRESHOLD - ZERO_TAX_THRESHOLD) * (1 - LOWER_TAX_RATE))
                 + ((higherTaxIncomeYear2 - LOWER_TAX_THRESHOLD) * (1 - HIGHER_TAX_RATE));
-        double actual = taxedIncome.getTaxedIncomeInYear(2);
+        double actual = taxedIncome.getTaxedIncome(2);
         assertEquals("Taxed income in higher tax bracket:", expected, actual, 0);
     }
 
@@ -100,7 +100,7 @@ public class TaxedIncomeTest {
         double expected = ((LOWER_TAX_THRESHOLD - ZERO_TAX_THRESHOLD) * LOWER_TAX_RATE)
                 + ((HIGHER_TAX_THRESHOLD - LOWER_TAX_THRESHOLD) * HIGHER_TAX_RATE)
                 + ((additionalTaxIncomeYear3 - HIGHER_TAX_THRESHOLD) * ADDITIONAL_TAX_RATE);
-        double actual = taxedIncome.getTaxPaidInYear(3);
+        double actual = taxedIncome.getTaxPaid(3);
         assertEquals("Tax paid in additional tax bracket:", expected, actual, 0);
     }
 
@@ -110,9 +110,10 @@ public class TaxedIncomeTest {
                 + ((LOWER_TAX_THRESHOLD - ZERO_TAX_THRESHOLD) * (1 - LOWER_TAX_RATE))
                 + ((HIGHER_TAX_THRESHOLD - LOWER_TAX_THRESHOLD) * (1 - HIGHER_TAX_RATE))
                 + ((additionalTaxIncomeYear3 - HIGHER_TAX_THRESHOLD)* (1 - ADDITIONAL_TAX_RATE));
-        double actual = taxedIncome.getTaxedIncomeInYear(3);
+        double actual = taxedIncome.getTaxedIncome(3);
         assertEquals("Taxed income in additional tax bracket:", expected, actual, 0);
 
     }
 
+    // TODO: 01/06/2017 add test cases for double[] getTaxedIncome()
 }

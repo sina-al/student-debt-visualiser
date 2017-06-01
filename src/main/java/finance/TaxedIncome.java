@@ -14,15 +14,18 @@ class TaxedIncome extends GrossIncome {
         super(preTaxIncome);
     }
 
-    double getTaxPaidInYear(int year){
+    double getTaxPaid(int year){
         return taxDeduction(getGrossIncomeInYear(year));
     }
 
-    double getTaxedIncomeInYear(int year){
+    double getTaxedIncome(int year){
         double preTax = getGrossIncomeInYear(year);
         return preTax - taxDeduction(preTax);
     }
 
+    double[] getTaxedIncome(){
+        return get(this::getTaxedIncome);
+    }
 
     private static double taxDeduction(double preTaxIncome){
         return (preTaxIncome < ZERO_TAX_THRESHOLD)

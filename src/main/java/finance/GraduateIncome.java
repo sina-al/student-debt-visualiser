@@ -5,14 +5,14 @@ import java.util.stream.DoubleStream;
 import static finance.GraduateDebt.REPAYMENT_THRESHOLD;
 import static finance.GraduateDebt.interestRate;
 
-class GraduateIncome extends TaxedIncome{
+public class GraduateIncome extends TaxedIncome{
 
     static final double REPAYMENT_RATE = 0.09;
 
     private final double initialDebt;
     private double[] netIncome;
 
-    GraduateIncome(double initialDebt, double[] incomeHistory) {
+    public GraduateIncome(double initialDebt, double[] incomeHistory) {
         super(incomeHistory);
         if(incomeHistory.length != GraduateDebt.MAX_AGE){
             throw new IllegalArgumentException(
@@ -52,7 +52,7 @@ class GraduateIncome extends TaxedIncome{
                     mandatoryRepayment(getGrossIncomeInYear(year))
                     + additionalRepayment[year];
 
-            netIncome[year] = getTaxedIncomeInYear(year)
+            netIncome[year] = getTaxedIncome(year)
                     - totalRepayment;
 
             if (netIncome[year] < 0) {
@@ -69,11 +69,11 @@ class GraduateIncome extends TaxedIncome{
         return netIncome;
     }
 
-    void setAdditionalRepayments(double[] additionalRepayments){
+    public void setAdditionalRepayments(double[] additionalRepayments){
         netIncome = projectNetIncome(additionalRepayments);
     }
 
-    double getGraduateIncomeInYear(int year){
+    double getGraduateIncome(int year){
         try {
             return netIncome[year];
         } catch (ArrayIndexOutOfBoundsException ex) {
@@ -84,8 +84,12 @@ class GraduateIncome extends TaxedIncome{
         }
     }
 
-    double getRepaymentMadeInYear(int year){
-        return getTaxedIncomeInYear(year) - netIncome[year];
+    public double[] getGraduateIncome(){
+        return get(this::getGraduateIncome);
+    }
+
+    double getRepaymentMade(int year){
+        return getTaxedIncome(year) - netIncome[year];
     }
 
 }

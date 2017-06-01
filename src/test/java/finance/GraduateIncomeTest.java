@@ -64,26 +64,26 @@ public class GraduateIncomeTest {
     public void getRepaymentMadeInYear() throws Exception {
         for(int year = 0; year < preTax.length; year++) {
             double expected = debtRepayment(preTax[year]);
-            double actual = income.getRepaymentMadeInYear(year);
+            double actual = income.getRepaymentMade(year);
             assertEquals("Repayment made in year " + year + ":", expected, actual, 1E-11);
         }
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void getRepaymentMadeInYear_negative() throws Exception {
-        income.getRepaymentMadeInYear(-1);
+        income.getRepaymentMade(-1);
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void getRepaymentInYear_past() throws Exception {
-        income.getRepaymentMadeInYear(MAX_AGE + 1);
+        income.getRepaymentMade(MAX_AGE + 1);
     }
 
     @Test
     public void  getGraduateIncomeInYear() throws Exception {
         for (int year = 0; year < preTax.length; year++) {
             double expected = preTax[year] - mandatoryDeductions(preTax[year]);
-            double actual = income.getGraduateIncomeInYear(year);
+            double actual = income.getGraduateIncome(year);
             assertEquals(
                     "Net graduate income in year " + year + ":",
                     expected,
@@ -95,12 +95,12 @@ public class GraduateIncomeTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void getGraduateIncomeInYear_negative() throws Exception {
-        income.getGraduateIncomeInYear(-1);
+        income.getGraduateIncome(-1);
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void getGraduateIncomeInYear_past(){
-        income.getGraduateIncomeInYear(MAX_AGE + 1);
+        income.getGraduateIncome(MAX_AGE + 1);
     }
 
     @Test // FIXME: 01/06/2017 revisit this.
@@ -119,7 +119,7 @@ public class GraduateIncomeTest {
         income.setAdditionalRepayments(additionalRepayment);
 
         for (int year = 0; year < preTax.length - 2; year++){
-            double actual = income.getGraduateIncomeInYear(year);
+            double actual = income.getGraduateIncome(year);
             double expected = preTax[year]
                     - mandatoryDeductions(preTax[year])
                     - additionalRepayment[year];
@@ -156,4 +156,6 @@ public class GraduateIncomeTest {
     public void setAdditionalRepayments_insufficient() {
         income.setAdditionalRepayments(new double[MAX_AGE - 1]);
     }
+
+    // TODO: 01/06/2017 add test cases for double[] getGraduateIncome()
 }

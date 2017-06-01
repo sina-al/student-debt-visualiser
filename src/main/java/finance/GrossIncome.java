@@ -1,7 +1,9 @@
 package finance;
 
 import java.util.Arrays;
+import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 class GrossIncome {
 
@@ -27,5 +29,15 @@ class GrossIncome {
 
     int getSpan(){
         return incomeHistory.length;
+    }
+
+    double[] get(IntToDoubleFunction intToDoubleFunction){
+        return IntStream.range(0, getSpan())
+                .mapToDouble(intToDoubleFunction)
+                .toArray();
+    }
+
+    double[] getGrossIncome(){
+        return get(this::getGrossIncomeInYear);
     }
 }
