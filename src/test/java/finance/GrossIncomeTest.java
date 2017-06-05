@@ -38,18 +38,18 @@ public class GrossIncomeTest {
     @Test
     public void getIncomeInYear() throws Exception {
         double expected = incomeInYear0;
-        double actual = income.getGrossIncomeInYear(0);
+        double actual = income.getGrossIncome(0);
         assertEquals(expected, actual, 0);
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void getIncomeInYearOutOfBounds1() throws Exception {
-        income.getGrossIncomeInYear(-1);
+        income.getGrossIncome(-1);
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void getIncomeInYearOutOfBounds2() throws Exception {
-        income.getGrossIncomeInYear(3);
+        income.getGrossIncome(3);
     }
 
     @Test

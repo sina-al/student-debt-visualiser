@@ -27,7 +27,7 @@ class Debt {
         debt *= (1.0 + interestRate);
     }
 
-    void makeRepayment(double repayment){
+    double makeRepayment(double repayment){
         if (repayment < 0){
             throw new IllegalArgumentException("Cannot make negative repayment.");
         }
@@ -35,9 +35,11 @@ class Debt {
             debt -= repayment;
             paid += repayment;
         } else {
-            paid += debt;
+            repayment = debt;
+            paid += repayment;
             debt = 0.0;
         }
+        return repayment;
     }
 
 }

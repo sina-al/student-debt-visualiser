@@ -1,161 +1,121 @@
 package finance;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.Random;
 
 import static finance.GraduateDebt.MAX_AGE;
 import static finance.GraduateDebt.REPAYMENT_THRESHOLD;
 import static finance.GraduateIncome.REPAYMENT_RATE;
-import static finance.TaxedIncome.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
+
+// TODO: 05/06/2017 needs complete refactor
 public class GraduateIncomeTest {
 
-    private GraduateIncome income;
+    private static double[] incomeHistory;
+    private static double[] additionalRepayments;
+    private static final double startingDebt = 45000;
 
-    private static double[] preTax;
-    private static final double debt = 45000;
+    private GraduateIncome graduateIncome;
 
     @BeforeClass
-    public static void setUpClass() throws Exception {
-        preTax = new Random(0)
-                        .doubles(MAX_AGE, 0, 200000)
-                        .toArray();
+    public static void setUpClass() throws  Exception {
+        incomeHistory = new double[]{
+                18000,18000,18000,18000,18000,
+                21000,21000,21000,21000,21000,
+                30000,30000,30000,30000,30000,
+                38000,38000,38000,38000,38000,
+                47000,47000,47000,47000,47000,
+                80000,80000,
+                120000,120000,
+                200000
+        };
+
+        additionalRepayments = new double[incomeHistory.length];
+
+        Random random = new Random();
+        for (int year = 0; year < additionalRepayments.length; year++) {
+            additionalRepayments[year] = random.nextDouble() * 0.5 * incomeHistory[year];
+        }
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        additionalRepayments = null;
+        incomeHistory = null;
     }
 
     @Before
     public void setUp() throws Exception {
-        income = new GraduateIncome(debt, preTax);
+        graduateIncome = new GraduateIncome(startingDebt, incomeHistory, additionalRepayments);
     }
 
     @After
     public void tearDown() throws Exception {
-        income = null;
+        graduateIncome = null;
     }
 
-    private static double taxDeduction(double preTax){
-        return (preTax < ZERO_TAX_THRESHOLD)
-                ? 0.0
-                : (preTax < LOWER_TAX_THRESHOLD)
-                ? (preTax - ZERO_TAX_THRESHOLD) * LOWER_TAX_RATE
-                : (preTax < HIGHER_TAX_THRESHOLD)
-                ? ((preTax - LOWER_TAX_THRESHOLD) * HIGHER_TAX_RATE)
-                + ((LOWER_TAX_THRESHOLD - ZERO_TAX_THRESHOLD) * LOWER_TAX_RATE)
-                : ((preTax - HIGHER_TAX_THRESHOLD) * ADDITIONAL_TAX_RATE)
-                + ((HIGHER_TAX_THRESHOLD - LOWER_TAX_THRESHOLD) * HIGHER_TAX_RATE)
-                + ((LOWER_TAX_THRESHOLD - ZERO_TAX_THRESHOLD) * LOWER_TAX_RATE);
+    private static double tax(double grossIncome){
+        // FIXME: 05/06/2017  decouple from TaxedIncome::getTaxPaid()
+        double[] preTax = new double[MAX_AGE];
+        preTax[0] = grossIncome;
+        return new TaxedIncome(preTax).getTaxPaid(0);
     }
 
-    private static double debtRepayment(double preTax){
-        return (preTax > REPAYMENT_THRESHOLD)
-                ? (preTax - REPAYMENT_THRESHOLD) * REPAYMENT_RATE
-                : 0.0;
-    }
-
-    private static double mandatoryDeductions(double preTax){
-        return taxDeduction(preTax) + debtRepayment(preTax);
-    }
-
-    @Test
-    public void getRepaymentMadeInYear() throws Exception {
-        for(int year = 0; year < preTax.length; year++) {
-            double expected = debtRepayment(preTax[year]);
-            double actual = income.getRepaymentMade(year);
-            assertEquals("Repayment made in year " + year + ":", expected, actual, 1E-11);
+    private static double mandatoryRepayment(double grossIncome){
+        if(grossIncome < REPAYMENT_THRESHOLD){
+            return (grossIncome - REPAYMENT_THRESHOLD) * REPAYMENT_RATE;
+        } else {
+            return 0.0;
         }
     }
 
-    @Test (expected = IllegalArgumentException.class)
-    public void getRepaymentMadeInYear_negative() throws Exception {
-        income.getRepaymentMade(-1);
-    }
+    private static double graduateIncomeInYear(int year) {
+        double debt = startingDebt;
+        double totalRepayment = 0d;
 
-    @Test (expected = IllegalArgumentException.class)
-    public void getRepaymentInYear_past() throws Exception {
-        income.getRepaymentMade(MAX_AGE + 1);
+        double mandatoryRepayment = mandatoryRepayment(incomeHistory[year]);
+
+        // check for and make appropriate debt repayment
+        for (int yr = 0; yr < year; yr++) {
+
+            if (debt > 0) {
+                debt -= mandatoryRepayment;
+                totalRepayment = mandatoryRepayment;
+                if (debt > 0) {
+                    debt -= additionalRepayments[year];
+                    totalRepayment += additionalRepayments[year];
+                    if (debt < 0) {
+                        totalRepayment += debt;
+                    }
+                } else {
+                    totalRepayment += debt;
+                }
+            } else {
+                totalRepayment = 0d;
+            }
+        }
+        return incomeHistory[year] - tax(incomeHistory[year]) - totalRepayment;
     }
 
     @Test
-    public void  getGraduateIncomeInYear() throws Exception {
-        for (int year = 0; year < preTax.length; year++) {
-            double expected = preTax[year] - mandatoryDeductions(preTax[year]);
-            double actual = income.getGraduateIncome(year);
+    public void getGraduateIncome() throws Exception {
+        for(int year = 0; year < MAX_AGE; year++) {
+            double actual = graduateIncome.getGraduateIncome(0);
+            double expected = graduateIncomeInYear(0);
             assertEquals(
-                    "Net graduate income in year " + year + ":",
+                    "Graduate income in year " + year + ": ",
                     expected,
                     actual,
-                    1E-10
+                    0
             );
         }
     }
 
-    @Test (expected = IllegalArgumentException.class)
-    public void getGraduateIncomeInYear_negative() throws Exception {
-        income.getGraduateIncome(-1);
+    @Test
+    public void getRepaymentMade() throws Exception {
+
     }
 
-    @Test (expected = IllegalArgumentException.class)
-    public void getGraduateIncomeInYear_past(){
-        income.getGraduateIncome(MAX_AGE + 1);
-    }
-
-    @Test // FIXME: 01/06/2017 revisit this.
-    public void setAdditionalRepayments() throws Exception {
-
-        Random random = new Random();
-
-        double[] additionalRepayment = new double[preTax.length];
-
-        for (int year = 0; year < preTax.length; year++){
-            additionalRepayment[year] =
-                    (preTax[year] - mandatoryDeductions(preTax[year]))
-                    * random.nextDouble();
-        }
-
-        income.setAdditionalRepayments(additionalRepayment);
-
-        for (int year = 0; year < preTax.length - 2; year++){
-            double actual = income.getGraduateIncome(year);
-            double expected = preTax[year]
-                    - mandatoryDeductions(preTax[year])
-                    - additionalRepayment[year];
-
-            assertEquals(
-                    "Post additional repayments in year " + year + ": ",
-                    actual,
-                    expected,
-                    1E-10
-            );
-        }
-    }
-
-    @Test (expected = UnsupportedOperationException.class)
-    public void setAdditionalRepayments_overpay(){
-        double[] repayments = new double[preTax.length];
-        repayments[0] = preTax[0]; // cannot repay pre-tax amount from post-tax earnings
-        income.setAdditionalRepayments(repayments);
-    }
-
-    @Test (expected = UnsupportedOperationException.class)
-    public void setAdditionalRepayments_negative(){
-        double[] repayments = new double[preTax.length];
-        repayments[0] = -100d; // cannot make negative repayment
-        income.setAdditionalRepayments(repayments);
-    }
-
-    @Test (expected = IllegalArgumentException.class)
-    public void setAdditionalRepayments_excess() {
-        income.setAdditionalRepayments(new double[MAX_AGE + 1]);
-    }
-
-    @Test (expected = IllegalArgumentException.class)
-    public void setAdditionalRepayments_insufficient() {
-        income.setAdditionalRepayments(new double[MAX_AGE - 1]);
-    }
-
-    // TODO: 01/06/2017 add test cases for double[] getGraduateIncome()
 }

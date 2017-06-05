@@ -15,11 +15,11 @@ class TaxedIncome extends GrossIncome {
     }
 
     double getTaxPaid(int year){
-        return taxDeduction(getGrossIncomeInYear(year));
+        return taxDeduction(getGrossIncome(year));
     }
 
     double getTaxedIncome(int year){
-        double preTax = getGrossIncomeInYear(year);
+        double preTax = getGrossIncome(year);
         return preTax - taxDeduction(preTax);
     }
 

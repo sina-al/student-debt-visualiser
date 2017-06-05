@@ -12,7 +12,14 @@ public class GraduateIncome extends TaxedIncome{
     private final double initialDebt;
     private double[] netIncome;
 
-    public GraduateIncome(double initialDebt, double[] incomeHistory) {
+    private GraduateDebt debt;
+    private int yearRepaid = 30;
+
+    public GraduateIncome(
+            double initialDebt,
+            double[] incomeHistory,
+            double[] additionalRepayments
+    ) {
         super(incomeHistory);
         if(incomeHistory.length != GraduateDebt.MAX_AGE){
             throw new IllegalArgumentException(
@@ -21,7 +28,7 @@ public class GraduateIncome extends TaxedIncome{
             );
         }
         this.initialDebt = initialDebt;
-        netIncome = projectNetIncome(new double[GraduateDebt.MAX_AGE]);
+        netIncome = projectNetIncome(additionalRepayments);
     }
 
     private static double mandatoryRepayment(double preTaxIncome){
@@ -30,6 +37,7 @@ public class GraduateIncome extends TaxedIncome{
                 : 0.0;
     }
 
+    // FIXME: 01/06/2017 bug in debt interest. used  pretax instead of interest(pretax)
     private double[] projectNetIncome(double[] additionalRepayment){
         if(additionalRepayment.length != GraduateDebt.MAX_AGE){
             throw new IllegalArgumentException(
@@ -43,34 +51,34 @@ public class GraduateIncome extends TaxedIncome{
             );
         }
 
-        GraduateDebt debt = new GraduateDebt(initialDebt);
-        double[] netIncome = new double[GraduateDebt.MAX_AGE];
+        debt = new GraduateDebt(initialDebt);
+        double[] netIncome = getTaxedIncome();
+
+
+        boolean debtRepaid = false;
 
         for (int year = 0; year < netIncome.length; year++) {
 
-            double totalRepayment =
-                    mandatoryRepayment(getGrossIncomeInYear(year))
-                    + additionalRepayment[year];
+            double grossIncome = getGrossIncome(year);
+            double repayment = mandatoryRepayment(grossIncome);
 
-            netIncome[year] = getTaxedIncome(year)
-                    - totalRepayment;
+            if(debt.isActive()){
+                debt.accumulateInterest(interestRate(grossIncome));
+                netIncome[year] -= debt.makeRepayment(repayment);
+
+                if(debt.getDebt() > 0){
+                    netIncome[year] -= debt.makeRepayment(additionalRepayment[year]);
+                } else if (debtRepaid) {
+                    debtRepaid = true;
+                    yearRepaid = year;
+                }
+            }
 
             if (netIncome[year] < 0) {
                 throw new UnsupportedOperationException("Cannot repay more than net earnings.");
             }
-
-            debt.makeRepayment(totalRepayment);
-
-            if(debt.isActive()) {
-                debt.accumulateInterest(interestRate(getGrossIncomeInYear(year)));
-            }
         }
-
         return netIncome;
-    }
-
-    public void setAdditionalRepayments(double[] additionalRepayments){
-        netIncome = projectNetIncome(additionalRepayments);
     }
 
     double getGraduateIncome(int year){
@@ -88,8 +96,20 @@ public class GraduateIncome extends TaxedIncome{
         return get(this::getGraduateIncome);
     }
 
-    double getRepaymentMade(int year){
+    public double getRepaymentMade(int year){
         return getTaxedIncome(year) - netIncome[year];
+    }
+
+    public int getYearRepaid(){
+        return yearRepaid;
+    }
+
+    public double getDebtPaid(){
+        return debt.getPaid();
+    }
+
+    public double getWrittenOff(){
+        return debt.getDebt();
     }
 
 }

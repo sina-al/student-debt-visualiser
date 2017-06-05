@@ -16,7 +16,7 @@ class GrossIncome {
         this.incomeHistory = Arrays.copyOf(incomeHistory, incomeHistory.length);
     }
 
-    double getGrossIncomeInYear(int year) {
+    double getGrossIncome(int year) {
         try {
             return incomeHistory[year];
         } catch (ArrayIndexOutOfBoundsException ex) {
@@ -38,6 +38,6 @@ class GrossIncome {
     }
 
     double[] getGrossIncome(){
-        return get(this::getGrossIncomeInYear);
+        return get(this::getGrossIncome);
     }
 }
