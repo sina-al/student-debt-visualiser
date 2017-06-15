@@ -6,7 +6,7 @@ Have a look at how your debt will behave over the course of its potential 30 yea
 Estimate how much interest is accumulated on your debt based on an income projection you draw with your mouse. 
 (NB: an exact calculation would require a forecast of inflation for the next 30 years. Here it is assumed to be constant at 2%)
 
-##Installation
+## Installation
 Open up a terminal window and clone this repository
 ```
   $ git clone https://github.com/sina-al/student-debt-visualiser.git
@@ -20,7 +20,7 @@ Run the application using gradle
   $ ./gradlew jfxRun
 ```
 
-##Usage
+## Usage
 Draw an income projection by clicking and dragging your mouse over the chart area. 
 You can change the starting debt if you wish, which is set by default to the typical graduate debt of £41,000
 
