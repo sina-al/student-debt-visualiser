@@ -6,6 +6,10 @@ Have a look at how your debt will behave over the course of its potential 30 yea
 Estimate how much interest is accumulated on your debt based on an income projection you draw with your mouse. 
 (NB: an exact calculation would require a forecast of inflation for the next 30 years. Here it is assumed to be constant at 2%)
 
+<p align="center">
+        <img src="https://media.giphy.com/media/l2QDOD5JqCHTcgUoM/giphy.gif" >
+</p>
+
 ## Installation
 Open up a terminal window and clone this repository
 ```
